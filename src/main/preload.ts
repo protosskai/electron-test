@@ -1,5 +1,6 @@
 import {contextBridge, ipcRenderer} from 'electron';
 
 contextBridge.exposeInMainWorld('electron', {
-  ipcRenderer: ipcRenderer,
+    ipcRenderer: ipcRenderer,
+    openExternUrl: (url) => ipcRenderer.send("openExternUrl", url)
 })
