@@ -5,7 +5,9 @@ import * as Electron from 'electron';
  */
 export default interface ElectronApi {
     ipcRenderer: Electron.IpcRenderer,
-    openExternUrl: Function
+    openExternUrl: Function,
+    parseStreamInfo: (url: string) => Promise<string>
+    downloadStream: (stream: string) => void
 }
 
 declare global {

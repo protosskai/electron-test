@@ -23,6 +23,13 @@ function createWindow() {
 const handleOpenExternUrl = (event, externUrl) => {
     shell.openExternal(externUrl);
 }
+const handleParseStreamInfo = (event, url) => {
+    console.log(url);
+    return url;
+}
+const handleDownloadStream = (event, url) => {
+    console.log(url);
+}
 app.whenReady().then(() => {
     createWindow();
 
@@ -42,7 +49,6 @@ app.whenReady().then(() => {
             createWindow();
         }
     });
-    ipcMain.on('openExternUrl', handleOpenExternUrl)
 });
 
 app.on('window-all-closed', function () {
@@ -52,3 +58,6 @@ app.on('window-all-closed', function () {
 ipcMain.on('message', (event, message) => {
     console.log(message);
 })
+ipcMain.on('openExternUrl', handleOpenExternUrl)
+ipcMain.handle('parseStreamInfo', handleParseStreamInfo);
+ipcMain.on('downloadStream', handleDownloadStream);

@@ -1,13 +1,6 @@
 <script setup lang="ts">
 import {ref} from "vue";
 
-interface StreamInfo {
-  name: string,
-  url: string,
-  streamType: 'video' | 'audio',
-  quality: string
-}
-
 const loading = ref<boolean>(false);
 const inputUrl = ref<string>("")
 const percentage = ref<number>(100)
@@ -25,7 +18,6 @@ const customColors = [
   {color: '#6f7ad3', percentage: 100},
 ]
 const parseStreamInfo = async (url: string): Promise<StreamInfo[]> => {
-  console.log(url);
   return [
     {
       name: '测试1',
@@ -71,10 +63,13 @@ const confirmParseStreamInfo = async () => {
   loading.value = false;
   showVideoSelectBar.value = true;
   showDownloadButton.value = true;
+  console.log(await window.electron.parseStreamInfo(inputUrl.value))
 }
 // 开始下载
 const startDownload = async () => {
-
+  showProgressBar.value = true;
+  showDescBar.value = true;
+  window.electron.downloadStream(streamInfoList.value[selectStreamInfoIndex.value].url)
 }
 </script>
 
@@ -107,7 +102,7 @@ const startDownload = async () => {
         <span>xxxxxx</span>
       </div>
       <div v-if="showDownloadButton" class="download-btn-bar">
-        <el-button type="primary">开始下载</el-button>
+        <el-button type="primary" @click="startDownload">开始下载</el-button>
       </div>
     </div>
   </div>
