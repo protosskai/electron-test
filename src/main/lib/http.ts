@@ -7,11 +7,18 @@ export default axios.create({
   headers: { "User-Agent": UA },
 }); 
 
-export const downloadFile = async (url, filename, onProgress) => {
+
+type onProgressFunc = (total: number, sum: number) => void;
+
+export const downloadFile = async (
+  url: string,
+  filename: string,
+  onProgress?: onProgressFunc
+) => {
   const { data, headers } = await axios({
-      url: url,
-      method: "GET",
-      responseType: "stream",
+    url: url,
+    method: "GET",
+    responseType: "stream",
   });
   const contentLength = headers["content-length"];
   let total = 0;
@@ -20,10 +27,10 @@ export const downloadFile = async (url, filename, onProgress) => {
   }
   let sum = 0;
   data.on("data", (chunk) => {
-    if(total !== 0){
+    if (total !== 0) {
       sum += chunk.length;
       if (onProgress) {
-        onProgress(contentLength, sum);
+        onProgress(total, sum);
       }
     }
   });

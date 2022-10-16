@@ -12,6 +12,7 @@ const partInfoList = ref<any[]>([]);
 const selectedPartInfo = ref<number>(0);
 const qualityList = ref<any[]>([]);
 const selectedQuality = ref<number>(0);
+const aid = ref<any>();
 const customColors = [
   {color: '#f56c6c', percentage: 20},
   {color: '#e6a23c', percentage: 40},
@@ -24,6 +25,7 @@ const parseStreamInfo = async (url: string): Promise<any> => {
   const streamInfo = JSON.parse(streamInfoStr);
   partInfoList.value = streamInfo.pages;
   qualityList.value = streamInfo.qualities;
+  aid.value = streamInfo.aid;
 }
 // 重置所有输入
 const reset = () => {
@@ -47,6 +49,7 @@ const startDownload = async () => {
   showDescBar.value = true;
   console.log(partInfoList.value[selectedPartInfo.value]);
   console.log(qualityList.value[selectedQuality.value]);
+  window.electron.downloadStream(aid.value, partInfoList.value[selectedPartInfo.value].cid, qualityList.value[selectedPartInfo.value].quality, "test");
 }
 </script>
 

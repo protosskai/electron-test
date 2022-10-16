@@ -121,7 +121,7 @@ export const getPartInfo = (videoInfo) => {
 }
 
 
-export const getStreamInfoTable = (videoInfo, downloadInfo) => {
+export const getStreamInfoTable = (aid, videoInfo, downloadInfo) => {
     const result = {};
     const pageArr = [];
     const qualityArr = [];
@@ -136,5 +136,23 @@ export const getStreamInfoTable = (videoInfo, downloadInfo) => {
         })
     }
     result.qualities = qualityArr;
+    result.aid = aid;
     return result;
+}
+
+export const getDownloadUrl = async (aid, cid, quality) => {
+    let reqQuality = -1;
+    const dInfo = await getDownloadInfo(aid, cid, 16);
+    for (let i = 0, len = dInfo.accept_quality.length; i < len; i++) {
+        if (dInfo.accept_quality[i] === quality) {
+            reqQuality = quality;
+            break;
+          }
+    }
+    if (reqQuality === -1) {
+        reqQuality = dInfo.accept_quality[0]; //如果没有指定的质量,默认使用最佳质量
+    }
+    const downloadInfo = await getDownloadInfo(aid, cid, reqQuality);
+    const dUrlArr = downloadInfo.durl;
+    return dUrlArr.map((item => item.url));
 }

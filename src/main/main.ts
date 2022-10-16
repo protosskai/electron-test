@@ -4,8 +4,10 @@ import {
   getVideoInfo,
   getDownloadInfo,
   extractAid,
-  getStreamInfoTable
+  getStreamInfoTable,
+  getDownloadUrl
 } from "./bilibili/extractor";
+import { downloadFile } from "./lib/http";
 
 function createWindow() {
   const mainWindow = new BrowserWindow({
@@ -35,13 +37,15 @@ const handleParseStreamInfo = async (event, url) => {
   if (aid) {
     const videoInfo = await getVideoInfo(aid);
     const downloadInfo = await getDownloadInfo(aid, videoInfo.cid, 16);
-    const streamInfo = getStreamInfoTable(videoInfo, downloadInfo);
+    const streamInfo = getStreamInfoTable(aid, videoInfo, downloadInfo);
     return JSON.stringify(streamInfo);
   }
   return null;
 };
-const handleDownloadStream = (event, url) => {
-  console.log(url);
+const handleDownloadStream = async (event, aid, cid, quality, title) => {
+    const urls = await getDownloadUrl(aid, cid, quality);
+    console.log(urls);
+    await downloadFile(urls[0], 'test.mp4');
 };
 app.whenReady().then(() => {
   createWindow();
