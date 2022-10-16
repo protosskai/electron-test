@@ -8,8 +8,10 @@ const showVideoSelectBar = ref<boolean>(false);
 const showProgressBar = ref<boolean>(false)
 const showDescBar = ref<boolean>(false);
 const showDownloadButton = ref<boolean>(false);
-const streamInfoList = ref<StreamInfo[]>([]);
-const selectStreamInfoIndex = ref<number>(0);
+const partInfoList = ref<any[]>([]);
+const selectedPartInfo = ref<number>(0);
+const qualityList = ref<any[]>([]);
+const selectedQuality = ref<number>(0);
 const customColors = [
   {color: '#f56c6c', percentage: 20},
   {color: '#e6a23c', percentage: 40},
@@ -17,36 +19,11 @@ const customColors = [
   {color: '#1989fa', percentage: 80},
   {color: '#6f7ad3', percentage: 100},
 ]
-const parseStreamInfo = async (url: string): Promise<StreamInfo[]> => {
-  return [
-    {
-      name: '测试1',
-      url: 'http://www.baidu.com',
-      streamType: 'video',
-      quality: '1080p'
-    },
-    {
-      name: '测试2',
-      url: 'http://www.baidu.com',
-      streamType: 'video',
-      quality: '720p'
-    },
-    {
-      name: '测试3',
-      url: 'http://www.baidu.com',
-      streamType: 'video',
-      quality: '480p'
-    },
-    {
-      name: '测试4',
-      url: 'http://www.baidu.com',
-      streamType: 'video',
-      quality: '360p'
-    },
-  ]
-}
-const getStreamInfoShowName = (streamInfo: StreamInfo): string => {
-  return `${streamInfo.streamType},${streamInfo.quality},${streamInfo.name}`
+const parseStreamInfo = async (url: string): Promise<any> => {
+  const streamInfoStr = await window.electron.parseStreamInfo(url);
+  const streamInfo = JSON.parse(streamInfoStr);
+  partInfoList.value = streamInfo.pages;
+  qualityList.value = streamInfo.qualities;
 }
 // 重置所有输入
 const reset = () => {
@@ -59,17 +36,17 @@ const reset = () => {
 // 点击解析按钮，解析链接的所有媒体流
 const confirmParseStreamInfo = async () => {
   loading.value = true;
-  streamInfoList.value = await parseStreamInfo(inputUrl.value);
+  await parseStreamInfo(inputUrl.value);
   loading.value = false;
   showVideoSelectBar.value = true;
   showDownloadButton.value = true;
-  console.log(await window.electron.parseStreamInfo(inputUrl.value))
 }
 // 开始下载
 const startDownload = async () => {
   showProgressBar.value = true;
   showDescBar.value = true;
-  window.electron.downloadStream(streamInfoList.value[selectStreamInfoIndex.value].url)
+  console.log(partInfoList.value[selectedPartInfo.value]);
+  console.log(qualityList.value[selectedQuality.value]);
 }
 </script>
 
@@ -79,16 +56,23 @@ const startDownload = async () => {
       <el-input v-model="inputUrl" placeholder="请输入链接" clearable/>
       <div v-if="showVideoSelectBar" class="video-select-bar">
         <el-form style="width: 90%">
-          <el-form-item label="流选择: ">
-            <el-select v-model="selectStreamInfoIndex" style="width: 100%">
-              <el-option v-for="(item, index) in streamInfoList"
-                         :key="item.name + index"
-                         :label="getStreamInfoShowName(item)"
+          <el-form-item label="分P选择: ">
+            <el-select v-model="selectedPartInfo" style="width: 100%">
+              <el-option v-for="(item, index) in partInfoList"
+                         :key="item.part"
+                         :label="item.part"
+                         :value="index"/>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="质量选择: ">
+            <el-select v-model="selectedQuality" style="width: 100%">
+              <el-option v-for="(item, index) in qualityList"
+                         :key="item.desc"
+                         :label="item.desc"
                          :value="index"/>
             </el-select>
           </el-form-item>
         </el-form>
-
       </div>
       <div class="option-btn-bar">
         <el-button @click="confirmParseStreamInfo">解析</el-button>
